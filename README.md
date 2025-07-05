@@ -40,8 +40,6 @@ pip install -r requirements.txt
 
 # Setup environment variables
 cp .env.example .env
-# OR create manually
-# touch .env
 
 # Start the Flask server
 python app.py
