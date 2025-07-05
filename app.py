@@ -5,12 +5,11 @@ from config import settings
 
 app = Flask(__name__)
 
-# --- Mongo setup -------------------------------------------------------------
 client = MongoClient(settings.MONGO_URI)
 collection = client[settings.DB_NAME][settings.COLL_NAME]
 
 
-def _verify_signature(payload, signature):
+def verify_signature(payload, signature):
     """Return True iff X-Hub-Signature-256 matches our secret."""
     if not settings.GITHUB_SECRET:
         return True   # skip when secret not set (dev mode)
@@ -22,8 +21,10 @@ def _verify_signature(payload, signature):
     expected = "sha256=" + mac.hexdigest()
     return hmac.compare_digest(expected, signature)
 
-def _iso_now():
-    return dt.datetime.utcnow().isoformat() + "Z"
+def iso_now():
+    return dt.datetime.now(dt.timezone.utc) \
+                      .isoformat(timespec="seconds") \
+                      .replace("+00:00", "Z")
 
 @app.route("/")
 def index():
@@ -42,7 +43,7 @@ def list_events():
 def github_webhook():
     signature = request.headers.get("X-Hub-Signature-256")
     body      = request.data
-    if not _verify_signature(body, signature):
+    if not verify_signature(body, signature):
         abort(400, "Invalid signature")
 
     event  = request.headers.get("X-GitHub-Event", "ping")
@@ -57,7 +58,7 @@ def github_webhook():
             "type": "push",
             "author": payload["pusher"]["name"],
             "to_branch": branch,
-            "timestamp": _iso_now()
+            "timestamp": iso_now()
         }
         collection.insert_one(doc)
         return "", 204
@@ -72,7 +73,7 @@ def github_webhook():
                 "author": pr["user"]["login"],
                 "from_branch": pr["head"]["ref"],
                 "to_branch": pr["base"]["ref"],
-                "timestamp": _iso_now()
+                "timestamp": iso_now()
             }
             collection.insert_one(doc)
 
@@ -82,7 +83,7 @@ def github_webhook():
                 "author": pr["merged_by"]["login"],
                 "from_branch": pr["head"]["ref"],
                 "to_branch": pr["base"]["ref"],
-                "timestamp": _iso_now()
+                "timestamp": iso_now()
             }
             collection.insert_one(doc)
 

@@ -25,7 +25,7 @@ A simple Flask application to receive GitHub webhook events (Push, Pull Request,
 
 ## Setup Instructions
 
-git clone https://github.com/<your-username>/webhook_repo.git
+git clone https://github.com/peetsravan/webhook_repo.git
 cd webhook_repo
 
 # Create virtual environment
@@ -40,10 +40,18 @@ pip install -r requirements.txt
 
 # Setup environment variables
 cp .env.example .env
-# OR create manually
-# touch .env
+
 
 # Start the Flask server
 python app.py
+
+# Documentation
+
+When we make change in action-repo like push,merge and raising pull request to main branch the events gets listed in /events end points
+This project uses ngrok to expose your locally running Flask app (webhook-repo) to the internet so GitHub can deliver webhook events.
+
+ngrok http 5000
+
+Copy the https://*.ngrok-free.app URL and paste it as the Payload URL in your GitHub Webhook settings (e.g., https://your-tunnel.ngrok-free.app/webhook).
 
 
