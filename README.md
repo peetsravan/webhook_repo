@@ -1,4 +1,4 @@
-# webhook_# GitHub Webhook Listener (Flask + MongoDB)
+# GitHub Webhook Listener (Flask + MongoDB)
 
 A simple Flask application to receive GitHub webhook events (Push, Pull Request, Merge) and store them in MongoDB. It also serves a minimal UI and REST API to view recent events.
 
@@ -40,7 +40,6 @@ pip install -r requirements.txt
 
 # Setup environment variables
 cp .env.example .env
-
 
 # Start the Flask server
 python app.py
